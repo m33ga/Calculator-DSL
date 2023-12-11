@@ -42,14 +42,20 @@ int position = -1;
 Token tok;
 vector<Token> tokens;
 
-void nextTok() {
-    position++;
-    tok = tokens[position];
-}
 
 void error(const string& message){
     cerr << message << endl;
     exit(EXIT_FAILURE);
+}
+
+void nextTok() {
+    position++;
+    if (position < tokens.size()){
+        tok = tokens[position];
+    } else {
+        error("Syntax error: Expected token, line: " + to_string(tok.line));
+    }
+
 }
 
 struct ASTNode{

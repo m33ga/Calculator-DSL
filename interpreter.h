@@ -49,9 +49,10 @@ double interpretDoubleExpression(ASTNode* node){
     if (node->token.type == IDENTIFIER){
         if (intVars.find(node->token.value) != intVars.end()){
             return interpretIntIdentifier(node);
-        }
-        if (doubleVars.find(node->token.value) != doubleVars.end()){
+        } else if (doubleVars.find(node->token.value) != doubleVars.end()){
             return interpretDoubleIdentifier(node);
+        } else {
+            error("Runtime error: Unknown variable, line: " + to_string(node->token.line));
         }
     } else if (node->token.type == INT_NUMBER){
         return 1.0*interpretIntNumber(node);
@@ -82,9 +83,10 @@ int interpretIntExpression(ASTNode* node){
     if (node->token.type == IDENTIFIER){
         if (intVars.find(node->token.value) != intVars.end()){
             return interpretIntIdentifier(node);
-        }
-        if (doubleVars.find(node->token.value) != doubleVars.end()){
+        } else if (doubleVars.find(node->token.value) != doubleVars.end()){
             error("Runtime error: Type mismatch, line: " + to_string(node->token.line));
+        } else {
+            error("Runtime error: Unknown variable, line: " + to_string(node->token.line));
         }
     } else if (node->token.type == INT_NUMBER){
         return interpretIntNumber(node);
@@ -101,8 +103,9 @@ int interpretIntExpression(ASTNode* node){
     } else if (node->token.type == MULTIPLY){
         return interpretIntExpression(node->left) * interpretIntExpression(node->right);
     } else if (node->token.type == DIVIDE){
-        if (interpretIntExpression(node->right) != 0){
-            return floor(interpretIntExpression(node->left) / interpretIntExpression(node->right));
+        int rightExpr = interpretIntExpression(node->right);
+        if (rightExpr != 0){
+            return floor(interpretIntExpression(node->left) / rightExpr);
         } else {
             error("Runtime error: Division by 0, line: " + to_string(node->token.line));
         }
@@ -148,7 +151,7 @@ void interpretStatement(ASTNode* node){
         int childNr = 0;
         while (node->children[childNr] != nullptr){
             interpretStatement(node->children[childNr]);
-            ++childNr;
+            childNr++;
         }
     } else if (node->token.type == IFst){
         bool condition = interpretCondition(node->children[0]);
